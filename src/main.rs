@@ -22,7 +22,7 @@ fn main(){
     //make buffer of strings which everything will be put into
     //tuple with for loop to iterate through each pixel
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){
-        let rayOrigin:point = point::new(0.0, 0.0, 0.0);
+        let rayOrigin:vec = vec::new(0.0, 0.0, 0.0);
         let rayDirection:vec = vec::subtr(&vec::subtr(
     &vec::subtr(&vec::new(0.0, 0.0, 0.0), vec::new((width as f64)/2.0, 0.0, 0.0)), 
     vec::new(0.0, (height as f64)/2.0, 0.0)), 
@@ -32,7 +32,7 @@ fn main(){
         let mut r = 255;//(255.999 * (x as f64 / (width-1) as f64)) as u8;
         let mut g = 255;//(255.999 * (y as f64 / (height-1) as f64)) as u8;
         let mut b = 0 as u8;
-        if(sphere(point::new(0.0,0.0,-1.0), 0.5, raytocast)){
+        if(sphere(vec::new(0.0,0.0,-1.0), 0.5, raytocast)){
             r = 0 as u8;
             g = 0 as u8;
             b = 255 as u8;
@@ -74,15 +74,15 @@ fn main(){
    
 }
 
-fn sphere(center: point, radius: f64, r: ray) -> bool {
-    let octemp: point = point::subtrpoints(&r.o(), center); 
-    let oc: vec = vec::new(octemp.x(), octemp.y(), octemp.z());
-    let octwo: vec = vec::new(octemp.x(), octemp.y(), octemp.z());
+fn sphere(center: vec, radius: f64, r: ray) -> bool {
+    let oc = vec::subtr(&r.o(), center); 
     let a = r.d().dot(r.d());
     let b = 2.0 * oc.dot(r.d());
-    let c = vec::dot(&oc, octwo) - radius * radius;
+    let c = vec::dot(&oc, oc.clone()) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
+   
+       // println!("The value of discriminant is: {}", discriminant);
+    
+    
+    return discriminant > 0.0
 }
-
-
