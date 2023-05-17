@@ -1,7 +1,3 @@
-use std::fs::File;
-use std::io::BufReader;
-use std::path::Path;
-
 use image::{RgbImage, ImageBuffer, Rgb};
 
 fn main(){
@@ -50,4 +46,6 @@ fn main(){
     //multithreading so that it preforms better
    
 }
+
+
 
