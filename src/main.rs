@@ -1,22 +1,29 @@
 mod vector;
 mod rays;
 mod points;
+mod primitives;
+mod ellipsoids;
 
 use image::{RgbImage, ImageBuffer, Rgb};
 
 use crate::vector::vec;
+use crate::primitives::prim;
 use crate::points::point;
 use crate::rays::ray;
 
 //things to come back to: 
 //bounding boxes, transformations, 
 fn color(r: ray) -> vec {
-    if(sphere(vec::new(0.0,0.0,-1.0), 0.5, r)){
+
+    //come back to fix this
+    /*
+    if(ellipsoids(vec::new(0.0,0.0,-1.0), 0.5, r)){
         let ir = 0.0 as f64;
         let ig = 0.0 as f64;
         let ib = 255 as f64;
         return vec::new(ir, ig, ib);
     }
+    */
     return vec::new(1.0, 1.0, 1.0);
 }
 
@@ -37,6 +44,7 @@ fn main(){
         let blue = (255 as f64 * color(r).z) as u8;
         *pixel = Rgb([red, green, blue]);
     }
+
     //i think the problem is somewhere in vector 
     buffer.save("image3.png").unwrap();
     
@@ -46,12 +54,3 @@ fn main(){
     //multithreading so that it preforms better
    
 }
-
-fn sphere(center: vec, radius: f64, r: ray) -> bool {
-    let discriminant = (2.0 * vec::subtr(r.o(), center).dot(r.d()) * 2.0 * 
-    vec::subtr(r.o(), center).dot(r.d())) - 
-    (4.0 * r.d().dot(r.d()) * vec::dot(vec::subtr(r.o(), center), 
-    vec::subtr(r.o(), center).clone()) - (radius * radius));
-    return discriminant > 0.0
-}
-
