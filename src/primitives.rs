@@ -8,13 +8,13 @@ pub struct prim{
 }
 
 impl prim{
-    fn new(t: f64, p: vec, norm: vec) -> prim{
+    pub fn new(t: f64, p: vec, norm: vec) -> prim{
         return prim{t, p, norm};
     }
 }
 
 pub trait intersection{
-    fn getIntersection(ray: ray, t_min: f64, t_max: f64) -> bool;
+    fn getIntersection(&self, ray: &ray, start: f64, end: f64) -> (bool, prim);
 }
 
 
