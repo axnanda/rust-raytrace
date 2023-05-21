@@ -3,6 +3,8 @@ mod rays;
 mod points;
 mod primitives;
 mod ellipsoids;
+mod projectivecamera;
+
 
 use image::{RgbImage, ImageBuffer, Rgb};
 
@@ -12,7 +14,8 @@ use crate::points::point;
 use crate::rays::ray;
 use crate::ellipsoids::ellipsoid;
 use crate::primitives::intersection;
-
+use crate::projectivecamera::projcam;
+use rand::prelude::*;
 
 //things to come back to: 
 //bounding boxes, transformations, 
@@ -31,7 +34,6 @@ fn color(r: &ray, objects: &[ellipsoid]) -> vec {
 
 fn main(){
 
-
     const width: u32 = 1000;
     const height: u32 = 500;
     let mut buffer: RgbImage = ImageBuffer::new(width, height);
@@ -41,14 +43,22 @@ fn main(){
     let vertical = vec::new(0.0, 2.0, 0.0);
     let objects: Vec<ellipsoid> = vec![
         ellipsoid::new(vec::new(0.0, 0.0, -1.0), 0.5),
-        //ellipsoid::new(vec::new(0.0, -100.5, -1.0), 100.0),
     ];
+    let projcam = projcam::new();
+
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){
-        let ra:vec = vec::add(startingPoint, vec::mult(horizontal, (x as f64 / width as f64)));
-        let r:ray = ray::new(rayOrigin, vec::add(ra, vec::mult(vertical, (y as f64 / height as f64))));  
-        let red = (255 as f64 * color(&r, &objects).x) as u8;
-        let green = (255 as f64 * color(&r, &objects).y) as u8;
-        let blue = (255 as f64 * color(&r, &objects).z) as u8;
+        let mut coloratpixel = vec::new(0.0, 0.0, 0.0);
+        for _ in 1..=100 {
+            let randx: f64 = rand::thread_rng().gen_range(0.0..=1.0);
+            let randy: f64 = rand::thread_rng().gen_range(0.0..=1.0);
+            let ra: vec = vec::add(startingPoint, vec::mult(horizontal, ((x as f64 + randx) / width as f64)));
+            let r: ray = ray::new(rayOrigin, vec::add(ra, vec::mult(vertical, ((y as f64 + randy) / height as f64))));
+            coloratpixel = vec::add(coloratpixel, color(&r, &objects));
+        }
+        let average = vec::div(coloratpixel, 100.0);
+        let red = (255 as f64 * average.x) as u8;
+        let green = (255 as f64 * average.y) as u8;
+        let blue = (255 as f64 * average.z) as u8;
         *pixel = Rgb([red, green, blue]);
     }
 
