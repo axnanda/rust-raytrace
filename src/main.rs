@@ -4,6 +4,7 @@ mod points;
 mod primitives;
 mod ellipsoids;
 mod projectivecamera;
+mod rectangles;
 
 
 use image::{RgbImage, ImageBuffer, Rgb};
@@ -16,12 +17,13 @@ use crate::ellipsoids::ellipsoid;
 use crate::primitives::intersection;
 use crate::projectivecamera::projcam;
 use rand::prelude::*;
+use crate::rectangles::rectangle;
 
 //things to come back to: 
 //bounding boxes, transformations, 
-fn color(r: &ray, objects: &[ellipsoid]) -> vec {
-    for object in objects{
-        let (hit, prim) = (object).getIntersection(&r, 0.001, 100000.0);
+fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle]) -> vec {
+    for object in ell{
+        let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
         if hit{
             let ir = 0.0 as f64;
             let ig = 255 as f64;
@@ -29,6 +31,16 @@ fn color(r: &ray, objects: &[ellipsoid]) -> vec {
             return vec::new(ir, ig, ib);
         }
     }
+    for object in rec{
+        let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
+        if hit{
+            let ir = 0.0 as f64;
+            let ig = 255 as f64;
+            let ib = 0.0 as f64;
+            return vec::new(ir, ig, ib);
+        }
+    }
+    //how to make it so that both interact and that it loops through both at the same time?
     return vec::new(1.0, 1.0, 1.0);
 }
 
@@ -41,9 +53,13 @@ fn main(){
     let rayOrigin = vec::new(0.0, 0.0, 0.0);
     let horizontal = vec::new(4.0, 0.0, 0.0);
     let vertical = vec::new(0.0, 2.0, 0.0);
-    let objects: Vec<ellipsoid> = vec![
+    let ellipsoids: Vec<ellipsoid> = vec![
         ellipsoid::new(vec::new(0.0, 0.0, -1.0), 0.5),
     ];
+    let rectangles: Vec<rectangle> = vec![
+        rectangle::new(0.0,1.0,0.0,1.0,-1.0),
+    ];
+    
     let projcam = projcam::new();
 
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){
@@ -53,7 +69,7 @@ fn main(){
             let randy: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let ra: vec = vec::add(startingPoint, vec::mult(horizontal, ((x as f64 + randx) / width as f64)));
             let r: ray = ray::new(rayOrigin, vec::add(ra, vec::mult(vertical, ((y as f64 + randy) / height as f64))));
-            coloratpixel = vec::add(coloratpixel, color(&r, &objects));
+            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles));
         }
         let average = vec::div(coloratpixel, 100.0);
         let red = (255 as f64 * average.x) as u8;
@@ -63,7 +79,7 @@ fn main(){
     }
 
     //i think the problem is somewhere in vector 
-    buffer.save("image4.png").unwrap();
+    buffer.save("image6.png").unwrap();
     
     //pbr cleanup
     //return result with error loggging
