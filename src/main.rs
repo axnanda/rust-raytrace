@@ -9,6 +9,7 @@ mod rectangles;
 
 use image::{RgbImage, ImageBuffer, Rgb};
 
+use rand::prelude::*;
 use crate::vector::vec;
 use crate::primitives::prim;
 use crate::points::point;
@@ -22,13 +23,37 @@ use crate::rectangles::rectangle;
 //things to come back to: 
 //bounding boxes, transformations, 
 fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle]) -> vec {
+    let mut rng = rand::thread_rng();
+    let mut r1: f64 = rng.gen_range(-1.0..=1.0);
+    let mut r2: f64 = rng.gen_range(-1.0..=1.0);
+    let mut r3: f64 = rng.gen_range(-1.0..=1.0);
+    let random = vec::new(r1, r2, r3);
+    while(random.length()*random.length()>1.0){
+        r1 = rng.gen_range(-1.0..=1.0);
+        r2 = rng.gen_range(-1.0..=1.0);
+        r3 = rng.gen_range(-1.0..=1.0);
+    }
+    //now you have a random unit vecto
+
     for object in ell{
         let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
+        
         if hit{
-            let ir = 0.0 as f64;
-            let ig = 255 as f64;
-            let ib = 0.0 as f64;
-            return vec::new(ir, ig, ib);
+            let lambertanian: vec = vec::add(vec::add( prim.p, ellipsoid::normal(object, &prim.p)), random);
+            let pt: point = point::new(lambertanian.x(), lambertanian.y(), lambertanian.z());
+            //random is a vector
+            //normal is a vector
+            //rec.p + rec.normal + random_in_unit_sphere()
+            let depth = vec::new(pt.x()- r.o().x(), pt.y()- r.o().y(), pt.z()- r.o().z());
+            let newRay = ray::new(r.o(), depth);
+            //&ray(r.o(), pt - r.o())
+            return (vec::mult(color(&newRay, ell, rec),0.5));
+               //point3 target = rec.p + rec.normal + random_in_unit_sphere();
+           //return 0.5 * ray_color(ray(rec.p, target - rec.p), world);
+            //let ir = 0.0 as f64;
+            //let ig = 255 as f64;
+            //let ib = 0.0 as f64;
+            //return vec::new(ir, ig, ib);
         }
     }
     for object in rec{
@@ -60,7 +85,7 @@ fn main(){
         rectangle::new(0.0,1.0,0.0,1.0,-1.0),
     ];
     
-    let projcam = projcam::new();
+    let projcam = projcam::new();//COME BACK TO THIS
 
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){
         let mut coloratpixel = vec::new(0.0, 0.0, 0.0);
@@ -79,7 +104,7 @@ fn main(){
     }
 
     //i think the problem is somewhere in vector 
-    buffer.save("image6.png").unwrap();
+    buffer.save("image7.png").unwrap();
     
     //pbr cleanup
     //return result with error loggging

@@ -12,6 +12,10 @@ impl ellipsoid{
     pub fn new(center: vec, radius: f64) -> ellipsoid{
         ellipsoid{center, radius}
     }
+
+    pub fn normal(&self, point: &vec) -> vec {
+        vec::div(vec::subtr(*point, self.center), self.radius)
+    }
 }
 
 impl intersection for ellipsoid{
