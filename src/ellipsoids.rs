@@ -18,11 +18,15 @@ impl ellipsoid{
         (vec::subtr(*point, self.center)).y / self.stretch.y, 
         (vec::subtr(*point, self.center)).z / self.stretch.z).unit();
     }
+    
+    pub fn frontface(&self, origin: &vec) -> bool {
+        return (vec::subtr(*origin, self.center)).dot(self.normal(origin)) < 0.0;
+    }
 }
 
 impl intersection for ellipsoid{
     fn getIntersection(&self, ray: &ray, start: f64, end: f64) -> (bool, prim) {
-        
+
         let discrim = (2.0 * (vec::subtr(ray.o(), self.center)).dot(ray.d()) 
         * 2.0 * (vec::subtr(ray.o(), self.center)).dot(ray.d())) 
         - ((4.0) * (ray.d().dot(ray.d())) *
@@ -43,4 +47,6 @@ impl intersection for ellipsoid{
         return (false, prim::new(end, vec::new(0.0, 0.0, 0.0), vec::new(0.0, 0.0, 0.0)),
         );
     }
+
+    
 }

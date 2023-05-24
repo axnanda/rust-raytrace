@@ -4,8 +4,7 @@ pub struct point{
     pub x: f64, pub y: f64, pub z: f64
 }
 impl point{
-    //operators needed: declaration, x,y,z, addition with vector, subtraction with vector, distance to other point
-    //instead of making another class for normals just compute it everytime
+
     pub fn new(x0: f64, y0: f64, z0: f64) -> point{
         return point{x: x0, y: y0, z: z0}
     }

@@ -5,8 +5,6 @@ pub struct vec{
 }
 impl vec{
 
-//operators needed: +, -, /, *, dot prod, cross prod, absolute dot prod, normalization (unit vector), length
-//points?
     pub fn new(x0: f64, y0: f64, z0: f64) -> vec{
         return vec{x: x0, y: y0, z: z0}
     }
@@ -49,7 +47,6 @@ impl vec{
     pub fn unit(self) -> vec{
         return self.div(self.length())
     }
-
 
 
 }

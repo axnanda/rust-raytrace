@@ -1,6 +1,7 @@
 use crate::rays::ray;
 use crate::vector::vec;
 use crate::ellipsoids::ellipsoid;
+
 pub struct prim{
     pub t: f64,
     pub p: vec,

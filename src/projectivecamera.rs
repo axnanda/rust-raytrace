@@ -1,10 +1,6 @@
 use crate::rays::ray;
 use crate::vector::vec;
 
-//needed actions: generate ray, generate raster, generate camera samples
-//perspective camera
-//depth of field
-
 pub struct projcam {
     pub o: vec,
     pub lowerleft: vec,
@@ -14,6 +10,7 @@ pub struct projcam {
     pub v: vec,
     pub w: vec,
     pub lensradius: f64,
+    
 }
 
 impl projcam{

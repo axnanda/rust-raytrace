@@ -3,13 +3,10 @@ use crate::vector::vec;
 #[derive(Copy, Clone)]
 
 pub struct ray{
-    //ignore bounding boxes for now, instead come back if preformance is too slow
-    //come back to ray differentials for anti-aliasing
     pub o: vec, pub d: vec 
 }
 
 impl ray {
-    //operators needed: declaration, origin, direction, depth
     pub fn new(pt: vec, dir: vec) -> ray {
         return ray { o: pt, d: dir }
     }
