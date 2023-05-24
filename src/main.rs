@@ -19,19 +19,30 @@ use crate::projectivecamera::projcam;
 use rand::prelude::*;
 use crate::rectangles::rectangle;
 
-fn color(r: &ray, ell: &[ellipsoid], rects: &[rectangle], solid: &[ellipsoid], numRecursive: i32) -> vec {
+fn color(r: &ray, ell: &[ellipsoid], rects: &[rectangle], solid: &[ellipsoid], lights: &[ellipsoid], numRecursive: i32) -> vec {
     let mut rng = rand::thread_rng();
     if(numRecursive <= 0){
         return vec::new(1.0, 1.0, 1.0);
     }
    
+   
+
+    let mut endcolor = vec::new(0.0, 0.0, 0.0);
+
+    for object in lights{
+        let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
+        if hit{
+            endcolor = vec::add(endcolor, vec::new(5.0, 5.0, 5.0));
+        }
+    }
+
     for object in ell{
         let (hit, prim) = (object).getIntersection(&r, 0.001, 10000000.0);
         if hit{
             let mut scattered = ray::new(vec::new(0.0, 0.0, 0.0), vec::new(0.0, 0.0, 0.0));
             let mut attenuation = vec::new(0.0, 0.0, 0.0);
             if scatter(r, object, &mut attenuation, &mut scattered) {
-                return color(&scattered, ell, rects, solid, numRecursive - 1);
+                return color(&scattered, ell, rects, solid, lights, numRecursive - 1);
             }
 
         } 
@@ -67,10 +78,12 @@ fn color(r: &ray, ell: &[ellipsoid], rects: &[rectangle], solid: &[ellipsoid], n
             let pt: point = point::new(lambertanian.x(), lambertanian.y(), lambertanian.z());
             let depth = vec::new(r.o().x() - pt.x(), r.o().y() - pt.y(), r.o().z() - pt.z());
             let newRay = ray::new(r.o(), depth);
-            return (vec::mult(color(&newRay, ell, rects, solid, numRecursive-1),0.5));
+            endcolor = vec::mult(color(&newRay, ell, rects, solid, lights, numRecursive - 1), 0.5);
+            //return (vec::mult(color(&newRay, ell, rects, solid, lights, numRecursive-1),0.5));
         }
     }
-    return vec::new(1.0, 1.0, 1.0);
+    
+    return endcolor;
   
 }
 
@@ -123,6 +136,10 @@ fn main(){
     let solids: Vec<ellipsoid> = vec![
         ellipsoid::new(vec::new(0.0, -100.5, -1.0), vec::new(100.0,100.0,100.0)),
         ellipsoid::new(vec::new(-1.0, 0.0, -1.0), vec::new(0.5, 0.5, 0.5)),
+       // ellipsoid::new(vec::new(1.0, 0.0, -1.0), vec::new(0.5, 1.0, 0.5)),
+    ];
+
+    let light: Vec<ellipsoid> = vec![
         ellipsoid::new(vec::new(1.0, 0.0, -1.0), vec::new(0.5, 1.0, 0.5)),
     ];
 
@@ -139,7 +156,7 @@ fn main(){
             let u = (x as f64 + randx) / width as f64;
             let v = (y as f64 + randy) / height as f64;
             let r = camera.generateray(u, v);
-            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles, &solids, 50));
+            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles, &solids, &light, 50));
         }
        
         let average = vec::div(coloratpixel, 100.0);
@@ -150,6 +167,6 @@ fn main(){
         *pixel = Rgb([red, green, blue]);
         
     }
-    buffer.save("image16.png").unwrap();
+    buffer.save("image18.png").unwrap();
     
 }
