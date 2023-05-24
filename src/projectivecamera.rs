@@ -17,8 +17,8 @@ pub struct projcam {
 }
 
 impl projcam{
-    pub fn new() -> projcam{
-        projcam{o: vec::new(0.0, 0.0, 0.0), lowerleft: vec::new(-2.0, -1.0, -1.0), horizontal: vec::new(4.0, 0.0, 0.0), vertical: vec::new(0.0, 2.0, 0.0), u: vec::new(1.0, 0.0, 0.0), v: vec::new(0.0, 1.0, 0.0), w: vec::new(0.0, 0.0, 1.0), lensradius: 0.0}
+    pub fn new(o:vec, lowerleft: vec, horizontal: vec, vertical: vec, u: vec, v: vec, w: vec, lensradius: f64) -> projcam{
+        return projcam{o: o, lowerleft: lowerleft, horizontal: horizontal, vertical: vertical, u: u, v: v, w: w, lensradius: lensradius}
     }
 
     pub fn generateray(&self, u: f64, v: f64) -> ray {

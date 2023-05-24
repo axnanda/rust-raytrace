@@ -83,8 +83,6 @@ fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle], numRecursive: i32) -> ve
 }
 
 fn main(){
-    //println!("Hello, world!");
-
     const width: u32 = 1000;
     const height: u32 = 500;
     let mut buffer: RgbImage = ImageBuffer::new(width, height);
@@ -93,37 +91,38 @@ fn main(){
     let horizontal = vec::new(4.0, 0.0, 0.0);
     let vertical = vec::new(0.0, 2.0, 0.0);
     let ellipsoids: Vec<ellipsoid> = vec![
-        ellipsoid::new(vec::new(0.0, 0.0, -1.0), 0.5),
+        //ten ellipsoids in total
+        ellipsoid::new(vec::new(0.0, 0.0, -1.0), vec::new(1.0, 2.0, 1.0))
     ];
     let rectangles: Vec<rectangle> = vec![
-        rectangle::new(0.0,1.0,0.0,1.0,-1.0),
+        //rectangle::new(0.0,1.0,0.0,1.0,-1.0),
     ];
     
-    let projcam = projcam::new();//COME BACK TO THIS
+    //let projcam = projcam::new();//COME BACK TO THIS
+    //finish implementing camera
+    let camera = projectivecamera::new( vec::new(0.0, 0.0, 0.0), vec::new(0.0, 1.0, 0.0), 90.0, width as f64 / height as f64, 0.1, 1.0);
 
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){
-        //println!("Hello, world1!");
+        
         let mut coloratpixel = vec::new(0.0, 0.0, 0.0);
         for _ in 1..=100 {
-            //println!("Hello, world2!");
+           
             let randx: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let randy: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let ra: vec = vec::add(startingPoint, vec::mult(horizontal, ((x as f64 + randx) / width as f64)));
             let r: ray = ray::new(rayOrigin, vec::add(ra, vec::mult(vertical, ((y as f64 + randy) / height as f64))));
-            //println!("Hello, world2.5!");
+           
             coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles, 50));
         }
-        //println!("Hello, world3!");
+       
         let average = vec::div(coloratpixel, 100.0);
         let red = (255 as f64 * average.x) as u8;
         let green = (255 as f64 * average.y) as u8;
         let blue = (255 as f64 * average.z) as u8;
         *pixel = Rgb([red, green, blue]);
-        //println!("{} {} {}", red, green, blue)
+        
     }
-
-    //i think the problem is somewhere in vector 
-    buffer.save("image7.png").unwrap();
+    buffer.save("image9.png").unwrap();
     
     //pbr cleanup
     //return result with error loggging
