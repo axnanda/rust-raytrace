@@ -20,21 +20,29 @@ use crate::projectivecamera::projcam;
 use rand::prelude::*;
 use crate::rectangles::rectangle;
 
+
 //things to come back to: 
 //bounding boxes, transformations, 
-fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle]) -> vec {
+fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle], numRecursive: i32) -> vec {
     let mut rng = rand::thread_rng();
     let mut r1: f64 = rng.gen_range(-1.0..=1.0);
     let mut r2: f64 = rng.gen_range(-1.0..=1.0);
     let mut r3: f64 = rng.gen_range(-1.0..=1.0);
-    let random = vec::new(r1, r2, r3);
+    let mut random = vec::new(r1, r2, r3);
+
+    if(numRecursive <= 0){
+        return vec::new(1.0, 1.0, 1.0);
+    }
     while(random.length()*random.length()>1.0){
         r1 = rng.gen_range(-1.0..=1.0);
         r2 = rng.gen_range(-1.0..=1.0);
         r3 = rng.gen_range(-1.0..=1.0);
+        random = vec::new(r1, r2, r3);
+        //the problem is here
+        //println!("Hello, world0!");
     }
     //now you have a random unit vecto
-
+    //println!("Hello, world4!");
     for object in ell{
         let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
         
@@ -43,22 +51,25 @@ fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle]) -> vec {
             let pt: point = point::new(lambertanian.x(), lambertanian.y(), lambertanian.z());
             //random is a vector
             //normal is a vector
+            //println!("Hello, world5!");
             //rec.p + rec.normal + random_in_unit_sphere()
             let depth = vec::new(pt.x()- r.o().x(), pt.y()- r.o().y(), pt.z()- r.o().z());
             let newRay = ray::new(r.o(), depth);
             //&ray(r.o(), pt - r.o())
-            return (vec::mult(color(&newRay, ell, rec),0.5));
+            return (vec::mult(color(&newRay, ell, rec, numRecursive-1),0.5));
                //point3 target = rec.p + rec.normal + random_in_unit_sphere();
            //return 0.5 * ray_color(ray(rec.p, target - rec.p), world);
             //let ir = 0.0 as f64;
             //let ig = 255 as f64;
             //let ib = 0.0 as f64;
             //return vec::new(ir, ig, ib);
+            
         }
     }
     for object in rec{
         let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
         if hit{
+            //println!("Hello, world6!");
             let ir = 0.0 as f64;
             let ig = 255 as f64;
             let ib = 0.0 as f64;
@@ -66,10 +77,13 @@ fn color(r: &ray, ell: &[ellipsoid], rec: &[rectangle]) -> vec {
         }
     }
     //how to make it so that both interact and that it loops through both at the same time?
+    //println!("Hello, world7!");
     return vec::new(1.0, 1.0, 1.0);
+  
 }
 
 fn main(){
+    //println!("Hello, world!");
 
     const width: u32 = 1000;
     const height: u32 = 500;
@@ -88,19 +102,24 @@ fn main(){
     let projcam = projcam::new();//COME BACK TO THIS
 
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){
+        //println!("Hello, world1!");
         let mut coloratpixel = vec::new(0.0, 0.0, 0.0);
         for _ in 1..=100 {
+            //println!("Hello, world2!");
             let randx: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let randy: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let ra: vec = vec::add(startingPoint, vec::mult(horizontal, ((x as f64 + randx) / width as f64)));
             let r: ray = ray::new(rayOrigin, vec::add(ra, vec::mult(vertical, ((y as f64 + randy) / height as f64))));
-            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles));
+            //println!("Hello, world2.5!");
+            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles, 50));
         }
+        //println!("Hello, world3!");
         let average = vec::div(coloratpixel, 100.0);
         let red = (255 as f64 * average.x) as u8;
         let green = (255 as f64 * average.y) as u8;
         let blue = (255 as f64 * average.z) as u8;
         *pixel = Rgb([red, green, blue]);
+        //println!("{} {} {}", red, green, blue)
     }
 
     //i think the problem is somewhere in vector 
