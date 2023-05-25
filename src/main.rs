@@ -22,17 +22,15 @@ use crate::rectangles::rectangle;
 fn color(r: &ray, ell: &[ellipsoid], rects: &[rectangle], solid: &[ellipsoid], lights: &[ellipsoid], numRecursive: i32) -> vec {
     let mut rng = rand::thread_rng();
     if(numRecursive <= 0){
-        return vec::new(1.0, 1.0, 1.0);
+        return vec::new(1.0,1.0,1.0);
     }
-   
-   
 
     let mut endcolor = vec::new(0.0, 0.0, 0.0);
 
     for object in lights{
         let (hit, prim) = (object).getIntersection(&r, 0.001, 1000.0);
         if hit{
-            endcolor = vec::add(endcolor, vec::new(5.0, 5.0, 5.0));
+            endcolor = vec::add(endcolor, vec::new(15.0, 15.0, 15.0));
         }
     }
 
@@ -124,8 +122,8 @@ fn scatter(r: &ray, rec: &ellipsoid, attenuation: &mut vec, scat: &mut ray) -> b
 }
 
 fn main(){
-    const width: u32 = 250;
-    const height: u32 = 175;
+    const width: u32 = 2500;
+    const height: u32 = 1750;
     let mut buffer: RgbImage = ImageBuffer::new(width, height);
     let ellipsoids: Vec<ellipsoid> = vec![
         ellipsoid::new(vec::new(0.0, 0.0, -1.0), vec::new(0.5, 0.5, 0.5)),
@@ -134,13 +132,13 @@ fn main(){
     ];
 
     let solids: Vec<ellipsoid> = vec![
-        ellipsoid::new(vec::new(0.0, -100.5, -1.0), vec::new(100.0,100.0,100.0)),
+        //ellipsoid::new(vec::new(0.0, -100.5, -1.0), vec::new(100.0,100.0,100.0)),
         ellipsoid::new(vec::new(-1.0, 0.0, -1.0), vec::new(0.5, 0.5, 0.5)),
        // ellipsoid::new(vec::new(1.0, 0.0, -1.0), vec::new(0.5, 1.0, 0.5)),
     ];
 
     let light: Vec<ellipsoid> = vec![
-        ellipsoid::new(vec::new(1.0, 0.0, -1.0), vec::new(0.5, 1.0, 0.5)),
+        ellipsoid::new(vec::new(1.0, 0.0, -1.0), vec::new(0.2, 0.2, 0.2)),
     ];
 
     let camera = projcam::new(vec::new(0.0, 0.0, 0.0), 
@@ -150,23 +148,22 @@ fn main(){
 
     for (x, y, pixel) in buffer.enumerate_pixels_mut(){  
         let mut coloratpixel = vec::new(0.0, 0.0, 0.0);
-        for _ in 1..=100 {    
+        for _ in 1..=500 {    
             let randx: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let randy: f64 = rand::thread_rng().gen_range(0.0..=1.0);
             let u = (x as f64 + randx) / width as f64;
             let v = (y as f64 + randy) / height as f64;
             let r = camera.generateray(u, v);
-            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles, &solids, &light, 50));
+            coloratpixel = vec::add(coloratpixel, color(&r, &ellipsoids, &rectangles, &solids, &light, 300));
         }
        
         let average = vec::div(coloratpixel, 100.0);
-        let red = (255 as f64 * average.x) as u8;
-        let green = (255 as f64 * average.y) as u8;
-        let blue = (255 as f64 * average.z) as u8;
-
-        *pixel = Rgb([red, green, blue]);
-        
+        let gamma = vec::new( average.x.powf(1.0 / 2.2), average.y.powf(1.0 / 2.2), average.z.powf(1.0 / 2.2));
+        let red = (255.0 * gamma.x) as u8;
+        let green = (255.0 * gamma.y) as u8;
+        let blue = (255.0 * gamma.z) as u8;
+        *pixel = Rgb([red, green, blue]);        
     }
-    buffer.save("image18.png").unwrap();
+    buffer.save("image22.png").unwrap();
     
 }
